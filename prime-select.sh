@@ -11,12 +11,12 @@ xorg_conf="/etc/prime/xorg.conf"
 offload="/etc/prime/prime-offload.sh"
 
 function clean_files {
-      rm -f /etc/X11/xinit/xinitrc.d/prime-offload.sh
-      rm -f /etc/X11/xorg.conf.d/90-nvidia.conf
-      rm -f /etc/ld.so.conf.d/nvidia-libs.conf 
+      #cleanup vulkan icd files
+      rm -f /usr/share/vulkan/icd.d/nvidia_icd.*.json
 
-      # Initial file provided by nvidia libs
-      rm -f /etc/ld.so.conf.d/nvidia-gfxG0*.conf   
+
+      rm -f /etc/X11/xinit/xinitrc.d/prime-offload.sh
+      rm -f /etc/X11/xorg.conf.d/90-nvidia.conf   
 }
 
 case $type in
@@ -33,8 +33,8 @@ case $type in
 
       cat $xorg_conf | sed 's/PCI:X:X:X/'${nvidia_busid}'/' > /etc/X11/xorg.conf.d/90-nvidia.conf
 
-      echo "/usr/X11R6/lib64" > /etc/ld.so.conf.d/nvidia-libs.conf
-      echo "/usr/X11R6/lib" >> /etc/ld.so.conf.d/nvidia-libs.conf
+      sed 's|libGLX_nvidia.so.0|/usr/lib64/libGLX_nvidia.so.0|g' /etc/vulkan/icd.d/nvidia_icd.json > /usr/share/vulkan/icd.d/nvidia_icd.x86_64.json
+      sed 's|libGLX_nvidia.so.0|/usr/lib/libGLX_nvidia.so.0|g' /etc/vulkan/icd.d/nvidia_icd.json > /usr/share/vulkan/icd.d/nvidia_icd.i586.json
 
       echo "Running ldconfig"
 
@@ -56,5 +56,3 @@ case $type in
       exit
   ;;
 esac
-
-
